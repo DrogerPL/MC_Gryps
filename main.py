@@ -8,6 +8,29 @@ import sys
 
 pygame.init()
 
+
+
+# ============================================================
+# MUSIC
+# ============================================================
+
+MUSIC_TRACKS = [
+    "assets/music/Asphalt_Grip.mp3",
+    "assets/music/Midnight_Canopy.mp3",
+    "assets/music/Techno_Gryps.mp3",
+]
+
+MUSIC_VOLUME = 0.12
+
+def play_random_music():
+    if not MUSIC_TRACKS:
+        return
+
+    track = random.choice(MUSIC_TRACKS)
+
+    pygame.mixer.music.load(track)
+    pygame.mixer.music.set_volume(MUSIC_VOLUME)
+    pygame.mixer.music.play(-1)
 # ------------------------------------------------------------
 # USTAWIENIA
 # ------------------------------------------------------------
@@ -146,7 +169,7 @@ class Player:
                 (160, 200)
             )
 
-        if name == "LIL specjal":
+        elif name == "LIL specjal":
                     self.width = 250
                     self.height = 200
                     self.run_frames = [
@@ -742,25 +765,24 @@ GAME_OVER_IMAGES = {
     "BIG OZI": pygame.image.load(
         "assets/game_over/big_ozi.png"
     ).convert(),
-}
 
-GAME_OVER_IMAGES = {
     "LIL specjal": pygame.image.load(
         "assets/game_over/lil_specjal.png"
     ).convert(),
+
 }
+
 
 VICTORY_IMAGES = {
     "BIG OZI": pygame.image.load(
         "assets/victory/big_ozi.png"
     ).convert(),
-}
 
-VICTORY_IMAGES = {
     "LIL specjal": pygame.image.load(
         "assets/victory/lil_specjal.png"
     ).convert(),
 }
+
 # ============================================================
 # TŁO
 # ============================================================
@@ -969,6 +991,8 @@ def game():
 
     selected_character = character_selection()
 
+    play_random_music()
+
     player = Player(
         selected_character
     )
@@ -1170,7 +1194,7 @@ def game():
             60 * dt
         )
 
-        if score >= 100:
+        if score >= 18000:
             return victory_screen(
               score,
               money,
@@ -1276,6 +1300,8 @@ def game_over(
     character
 ):
 
+    pygame.mixer.music.stop()
+
     while True:
 
         background = GAME_OVER_IMAGES.get(
@@ -1377,6 +1403,8 @@ def victory_screen(
     money,
     character
 ):
+    pygame.mixer.music.stop()
+
     while True:
         background = VICTORY_IMAGES.get(character)
 
