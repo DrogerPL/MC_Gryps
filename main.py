@@ -697,14 +697,20 @@ class PoliceCar:
 
 
   # ============================================================
-# EKRANY PORAŻKI
+# EKRANY PORAŻKI I ZWYCIĘSTWA
 # ============================================================
 
 GAME_OVER_IMAGES = {
     "BIG OZI": pygame.image.load(
         "assets/game_over/big_ozi.png"
     ).convert(),
-}      
+}
+
+VICTORY_IMAGES = {
+    "BIG OZI": pygame.image.load(
+        "assets/victory/big_ozi.png"
+    ).convert(),
+}
 # ============================================================
 # TŁO
 # ============================================================
@@ -1114,6 +1120,12 @@ def game():
             60 * dt
         )
 
+        if score >= 100:
+            return victory_screen(
+              score,
+              money,
+              selected_character
+            )
         # ----------------------------------------------------
         # RYSOWANIE
         # ----------------------------------------------------
@@ -1310,7 +1322,93 @@ def game_over(
 
         clock.tick(FPS)
 
+def victory_screen(
+    score,
+    money,
+    character
+):
+    while True:
+        background = VICTORY_IMAGES.get(character)
 
+        if background:
+            screen.blit(background, (0, 0))
+        else:
+            screen.fill(BLACK)
+
+        draw_text(
+            "ZWYCIĘSTWO!",
+            font_big,
+            YELLOW,
+            WIDTH // 2,
+            100,
+            center=True
+        )
+
+        left_x = 190
+        start_y = 450
+        spacing = 45
+        
+        draw_text(
+            f"Postać: {character}",
+            font_medium,
+            WHITE,
+            left_x,
+            start_y,
+            center=True
+        )
+
+        draw_text(
+            f"Wynik: {score}",
+            font_medium,
+            WHITE,
+            left_x,
+            start_y + spacing,
+            center=True
+        )
+
+        draw_text(
+            f"Zebrana kasa: {money}",
+            font_medium,
+            YELLOW,
+            left_x,
+            start_y + spacing * 2,
+            center=True
+        )
+
+        draw_text(
+            "ENTER - zagraj ponownie",
+            font_small,
+            WHITE,
+            left_x,
+            start_y + spacing * 3 + 20,
+            center=True
+        )
+
+        draw_text(
+            "ESC - menu",
+            font_small,
+            WHITE,
+            left_x,
+            start_y + spacing * 4 +20,
+            center=True
+        )
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_RETURN:
+                    game()
+                    return
+
+                if event.key == pygame.K_ESCAPE:
+                    return
 # ============================================================
 # START
 # ============================================================
