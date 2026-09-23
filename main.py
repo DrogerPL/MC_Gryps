@@ -514,16 +514,49 @@ class Collectible:
 # ============================================================
 
 class PoliceCar:
-
     def __init__(self):
+        # =========================
+        # ROZMIAR RADIOWOZU
+        # =========================
+        CAR_WIDTH = 300
+        CAR_HEIGHT = 300
 
+        # =========================
+        # KLATKI ANIMACJI
+        # =========================
+        self.frames = [
+            pygame.image.load("assets/police/police_car_1.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_2.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_3.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_4.png").convert_alpha(),
+        ]
+
+        # Skalowanie każdej klatki do tego samego rozmiaru
+        self.frames = [
+            pygame.transform.scale(
+                frame,
+                (CAR_WIDTH, CAR_HEIGHT)
+            )
+            for frame in self.frames
+        ]
+
+        # =========================
+        # ANIMACJA
+        # =========================
+        self.frame_index = 0
+        self.frame_timer = 0
+        self.frame_speed = 0.40
+
+        self.image = self.frames[self.frame_index]
+
+        self.width = CAR_WIDTH
+        self.height = CAR_HEIGHT
+
+        # =========================
+        # POZYCJA
+        # =========================
         self.x = -250
-
-        self.y = GROUND_Y - 80
-
-        self.width = 220
-
-        self.height = 80
+        self.y = GROUND_Y - self.height
 
         self.rect = pygame.Rect(
             self.x,
@@ -533,78 +566,33 @@ class PoliceCar:
         )
 
     def update(self, speed, dt):
+        # =========================
+        # ANIMACJA
+        # =========================
+        self.frame_timer += dt
 
-        # radiowóz powoli dogania gracza
+        if self.frame_timer >= self.frame_speed:
+            self.frame_timer = 0
 
+            self.frame_index += 1
+
+            if self.frame_index >= len(self.frames):
+                self.frame_index = 0
+
+            self.image = self.frames[self.frame_index]
+
+        # =========================
+        # RUCH
+        # =========================
         self.x += speed * 0.08 * dt
 
         self.rect.x = int(self.x)
 
     def draw(self):
-
-        pygame.draw.rect(
-            screen,
-            WHITE,
-            self.rect
+        screen.blit(
+            self.image,
+            (int(self.x), int(self.y))
         )
-
-        pygame.draw.rect(
-            screen,
-            BLUE,
-            (
-                self.rect.x + 20,
-                self.rect.y + 10,
-                80,
-                30
-            )
-        )
-
-        pygame.draw.rect(
-            screen,
-            BLACK,
-            (
-                self.rect.x + 25,
-                self.rect.y + 45,
-                45,
-                30
-            )
-        )
-
-        pygame.draw.rect(
-            screen,
-            BLACK,
-            (
-                self.rect.x + 145,
-                self.rect.y + 45,
-                45,
-                30
-            )
-        )
-
-        # sygnał
-
-        pygame.draw.rect(
-            screen,
-            RED,
-            (
-                self.rect.x + 95,
-                self.rect.y - 10,
-                30,
-                10
-            )
-        )
-
-        pygame.draw.rect(
-            screen,
-            BLUE,
-            (
-                self.rect.x + 125,
-                self.rect.y - 10,
-                30,
-                10
-            )
-        )
-
 
 # ============================================================
 # TŁO
