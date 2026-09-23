@@ -108,7 +108,7 @@ class Player:
 
         self.current_frame = 0
         self.animation_timer = 0
-        self.animation_speed = 0.20
+        self.animation_speed = 0.15
 
         # ----------------------------------------------------
         # GRAFIKA POSTACI
@@ -146,6 +146,44 @@ class Player:
                 (160, 200)
             )
 
+        if name == "LIL specjal":
+                    self.width = 250
+                    self.height = 200
+                    self.run_frames = [
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/lil_specjal/run_1.png").convert_alpha(),
+                            (250, 200)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/lil_specjal/run_2.png").convert_alpha(),
+                            (250, 200)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/lil_specjal/run_3.png").convert_alpha(),
+                            (250, 200)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/lil_specjal/run_4.png").convert_alpha(),
+                            (250, 200)
+                        ),
+
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/lil_specjal/run_5.png").convert_alpha(),
+                            (250, 200)
+                        ),
+        
+                    ]
+        
+                    self.jump_image = pygame.transform.scale(
+                        pygame.image.load("assets/characters/lil_specjal/jump.png").convert_alpha(),
+                        (250, 200)
+                    )
+
+        
         else:
 
             self.run_frames = []
@@ -706,9 +744,21 @@ GAME_OVER_IMAGES = {
     ).convert(),
 }
 
+GAME_OVER_IMAGES = {
+    "LIL specjal": pygame.image.load(
+        "assets/game_over/lil_specjal.png"
+    ).convert(),
+}
+
 VICTORY_IMAGES = {
     "BIG OZI": pygame.image.load(
         "assets/victory/big_ozi.png"
+    ).convert(),
+}
+
+VICTORY_IMAGES = {
+    "LIL specjal": pygame.image.load(
+        "assets/victory/lil_specjal.png"
     ).convert(),
 }
 # ============================================================
