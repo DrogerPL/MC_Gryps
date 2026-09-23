@@ -514,24 +514,35 @@ class Collectible:
 # ============================================================
 
 class PoliceCar:
+
     def __init__(self):
-        # =========================
-        # ROZMIAR RADIOWOZU
-        # =========================
-        CAR_WIDTH = 300
-        CAR_HEIGHT = 300
 
         # =========================
         # KLATKI ANIMACJI
         # =========================
+
+        CAR_WIDTH = 300
+        CAR_HEIGHT = 300
+
         self.frames = [
-            pygame.image.load("assets/police/police_car_1.png").convert_alpha(),
-            pygame.image.load("assets/police/police_car_2.png").convert_alpha(),
-            pygame.image.load("assets/police/police_car_3.png").convert_alpha(),
-            pygame.image.load("assets/police/police_car_4.png").convert_alpha(),
+            pygame.image.load(
+                "assets/police/police_car_1.png"
+            ).convert_alpha(),
+
+            pygame.image.load(
+                "assets/police/police_car_2.png"
+            ).convert_alpha(),
+
+            pygame.image.load(
+                "assets/police/police_car_3.png"
+            ).convert_alpha(),
+
+            pygame.image.load(
+                "assets/police/police_car_4.png"
+            ).convert_alpha(),
+
         ]
 
-        # Skalowanie każdej klatki do tego samego rozmiaru
         self.frames = [
             pygame.transform.scale(
                 frame,
@@ -543,11 +554,14 @@ class PoliceCar:
         # =========================
         # ANIMACJA
         # =========================
+
         self.frame_index = 0
         self.frame_timer = 0
-        self.frame_speed = 0.40
+        self.frame_speed = 0.10
 
-        self.image = self.frames[self.frame_index]
+        self.image = self.frames[
+            self.frame_index
+        ]
 
         self.width = CAR_WIDTH
         self.height = CAR_HEIGHT
@@ -555,7 +569,8 @@ class PoliceCar:
         # =========================
         # POZYCJA
         # =========================
-        self.x = -250
+
+        self.x = -self.width
         self.y = GROUND_Y - self.height
 
         self.rect = pygame.Rect(
@@ -565,13 +580,70 @@ class PoliceCar:
             self.height
         )
 
+        # =========================
+        # ULT
+        # =========================
+
+        self.active = False
+
+        # Prędkość podczas używania ulta
+        self.ult_speed = 500
+
+        # Cooldown
+        self.cooldown = 5.0
+        self.cooldown_timer = 0
+
+    # ========================================================
+    # WEZWANIE ULTA
+    # ========================================================
+
+    def activate(self):
+
+        # Nie można aktywować podczas działania
+        if self.active:
+            return
+
+        # Nie można aktywować podczas cooldownu
+        if self.cooldown_timer > 0:
+            return
+
+        self.active = True
+
+        # Start poza ekranem
+        self.x = -self.width
+
+        self.rect.x = int(self.x)
+
+    # ========================================================
+    # UPDATE
+    # ========================================================
+
     def update(self, speed, dt):
+
+        # =========================
+        # COOLDOWN
+        # =========================
+
+        if self.cooldown_timer > 0:
+
+            self.cooldown_timer -= dt
+
+            if self.cooldown_timer < 0:
+                self.cooldown_timer = 0
+
+        # Jeżeli ult nie jest aktywny,
+        # radiowóz nic nie robi
+        if not self.active:
+            return
+
         # =========================
         # ANIMACJA
         # =========================
+
         self.frame_timer += dt
 
         if self.frame_timer >= self.frame_speed:
+
             self.frame_timer = 0
 
             self.frame_index += 1
@@ -579,21 +651,49 @@ class PoliceCar:
             if self.frame_index >= len(self.frames):
                 self.frame_index = 0
 
-            self.image = self.frames[self.frame_index]
+            self.image = self.frames[
+                self.frame_index
+            ]
 
         # =========================
-        # RUCH
+        # RUCH ULTA
         # =========================
-        self.x += speed * 0.08 * dt
+
+        self.x += self.ult_speed * dt
 
         self.rect.x = int(self.x)
 
+        # =========================
+        # KONIEC ULTA
+        # =========================
+
+        if self.x > WIDTH:
+
+            self.active = False
+
+            self.cooldown_timer = self.cooldown
+
+            self.x = -self.width
+
+            self.rect.x = int(self.x)
+
+    # ========================================================
+    # DRAW
+    # ========================================================
+
     def draw(self):
+
+        # Nie rysujemy go, jeśli ult nie jest aktywny
+        if not self.active:
+            return
+
         screen.blit(
             self.image,
-            (int(self.x), int(self.y))
+            (
+                int(self.x),
+                int(self.y)
+            )
         )
-
 # ============================================================
 # TŁO
 # ============================================================
@@ -850,6 +950,10 @@ def game():
 
                     player.jump()
 
+                if event.key == pygame.K_x:
+
+                    police.activate()
+
                 if event.key == pygame.K_ESCAPE:
 
                     return
@@ -983,6 +1087,14 @@ def game():
             dt
         )
 
+        if police.active:
+            obstacles = [
+                obstacle
+                for obstacle in obstacles
+                if not police.rect.colliderect(
+                    obstacle.rect
+                )
+            ]
         # ----------------------------------------------------
         # SCORE
         # ----------------------------------------------------
@@ -1048,6 +1160,35 @@ def game():
             WIDTH - 250,
             55
         )
+
+        
+        if police.active:
+         
+         draw_text(
+             "JAZDA!!",
+             font_small,
+             RED,
+             WIDTH - 250,
+             85
+        )
+
+        elif police.cooldown_timer > 0:
+             draw_text(
+                f"Naprawianie fury: {police.cooldown_timer:.1f}s",
+                font_small,
+                WHITE,
+                WIDTH - 250,
+                85
+             )
+
+        else:
+            draw_text(
+                "X - JANO!",
+                font_small,
+                WHITE,
+                WIDTH -250,
+                85
+            )
 
         pygame.display.flip()
 
