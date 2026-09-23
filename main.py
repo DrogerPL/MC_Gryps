@@ -694,6 +694,17 @@ class PoliceCar:
                 int(self.y)
             )
         )
+
+
+  # ============================================================
+# EKRANY PORAŻKI
+# ============================================================
+
+GAME_OVER_IMAGES = {
+    "BIG OZI": pygame.image.load(
+        "assets/game_over/big_ozi.png"
+    ).convert(),
+}      
 # ============================================================
 # TŁO
 # ============================================================
@@ -1205,23 +1216,38 @@ def game_over(
 
     while True:
 
-        screen.fill(BLACK)
+        background = GAME_OVER_IMAGES.get(
+            character
+        )
+
+        if background:
+            screen.blit(
+                background,
+                (0, 0)
+            )
+        else:
+            screen.fill(BLACK)
+        
 
         draw_text(
             "ZŁAPALI CIĘ!",
             font_big,
             RED,
             WIDTH // 2,
-            200,
+            100,
             center=True
         )
+
+        left_x = 190
+        start_y = 450
+        spacing = 45
 
         draw_text(
             f"Postać: {character}",
             font_medium,
             WHITE,
-            WIDTH // 2,
-            300,
+            left_x,
+            start_y,
             center=True
         )
 
@@ -1229,8 +1255,8 @@ def game_over(
             f"Wynik: {score}",
             font_medium,
             WHITE,
-            WIDTH // 2,
-            350,
+            left_x,
+            start_y + spacing,
             center=True
         )
 
@@ -1238,8 +1264,8 @@ def game_over(
             f"Zebrana kasa: {money}",
             font_medium,
             YELLOW,
-            WIDTH // 2,
-            400,
+            left_x,
+            start_y + spacing * 2,
             center=True
         )
 
@@ -1247,8 +1273,8 @@ def game_over(
             "ENTER - zagraj ponownie",
             font_small,
             WHITE,
-            WIDTH // 2,
-            500,
+            left_x,
+            start_y + spacing * 3 + 20,
             center=True
         )
 
@@ -1256,8 +1282,8 @@ def game_over(
             "ESC - menu",
             font_small,
             WHITE,
-            WIDTH // 2,
-            540,
+            left_x,
+            start_y + spacing * 4 + 20,
             center=True
         )
 
