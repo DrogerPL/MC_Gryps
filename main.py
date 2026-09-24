@@ -942,14 +942,14 @@ def character_selection():
 
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_UP:
+                if event.key in (pygame.K_UP, pygame.K_w):
 
                     selected -= 1
 
                     if selected < 0:
                         selected = len(names) - 1
 
-                if event.key == pygame.K_DOWN:
+                if event.key in (pygame.K_DOWN, pygame.K_s):
 
                     selected += 1
 
