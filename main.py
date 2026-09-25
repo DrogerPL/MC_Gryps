@@ -162,6 +162,15 @@ class Player:
                     (160, 200)
                 ),
 
+                pygame.transform.scale(
+                    pygame.image.load("assets/characters/big_ozi/run_5.png").convert_alpha(),
+                   (160, 200)
+                ),
+
+                pygame.transform.scale(
+                    pygame.image.load("assets/characters/big_ozi/run_6.png").convert_alpha(),
+                    (160, 200)
+                ),
             ]
 
             self.jump_image = pygame.transform.scale(
@@ -170,43 +179,76 @@ class Player:
             )
 
         elif name == "LIL specjal":
-                    self.width = 250
-                    self.height = 200
+                    self.width = 150
+                    self.height = 100
                     self.run_frames = [
         
                         pygame.transform.scale(
                             pygame.image.load("assets/characters/lil_specjal/run_1.png").convert_alpha(),
-                            (250, 200)
+                            (150, 100)
                         ),
         
                         pygame.transform.scale(
                             pygame.image.load("assets/characters/lil_specjal/run_2.png").convert_alpha(),
-                            (250, 200)
+                            (150, 100)
                         ),
         
                         pygame.transform.scale(
                             pygame.image.load("assets/characters/lil_specjal/run_3.png").convert_alpha(),
-                            (250, 200)
+                            (150, 100)
                         ),
         
                         pygame.transform.scale(
                             pygame.image.load("assets/characters/lil_specjal/run_4.png").convert_alpha(),
-                            (250, 200)
+                            (150, 100)
                         ),
 
                         pygame.transform.scale(
                             pygame.image.load("assets/characters/lil_specjal/run_5.png").convert_alpha(),
-                            (250, 200)
+                            (150, 100)
                         ),
         
                     ]
         
                     self.jump_image = pygame.transform.scale(
                         pygame.image.load("assets/characters/lil_specjal/jump.png").convert_alpha(),
-                        (250, 200)
+                        (150, 100)
                     )
 
+        elif name == "Wika the psycho":
+                    self.width = 120
+                    self.height = 160
+                    self.run_frames = [
         
+
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/wika_psycho/klatka_2.png").convert_alpha(),
+                            (120, 160)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/wika_psycho/klatka_3.png").convert_alpha(),
+                            (120, 160)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/wika_psycho/klatka_4.png").convert_alpha(),
+                            (120, 160)
+                        ),
+        
+                        pygame.transform.scale(
+                            pygame.image.load("assets/characters/wika_psycho/klatka_5.png").convert_alpha(),
+                           (120, 160)
+                        ),
+                                                                                                                                                                                         
+                    ]
+        
+                    self.jump_image = pygame.transform.scale(
+                        pygame.image.load("assets/characters/wika_psycho/jump.png").convert_alpha(),
+                        (125, 165)
+                    )
+                
         else:
 
             self.run_frames = []
