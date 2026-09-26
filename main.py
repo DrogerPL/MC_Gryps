@@ -35,12 +35,13 @@ def play_random_music():
 # USTAWIENIA
 # ------------------------------------------------------------
 
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 1376
+HEIGHT = 768
 
 FPS = 60
 
-GROUND_Y = 570
+#570
+GROUND_Y = 650
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("MC Gryps Runner")
@@ -98,7 +99,22 @@ CHARACTERS = {
     }
 }
 
+LEVELS = {
+    "BIG OZI": {
+        "background": "assets/levels/big_ozi/background.png",
+        "ground": "assets/levels/big_ozi/ground.png",
+    },
 
+    "LIL specjal": {
+        "background": "assets/levels/lil_specjal/background.png",
+        "ground": "assets/levels/lil_specjal/ground.png",
+    },
+
+    "Wika the psycho": {
+        "background": "assets/levels/wika_psycho/background.png",
+        "ground": "assets/levels/wika_psycho/ground.png",
+    }
+}
 # ============================================================
 # FUNKCJA TEKSTU
 # ============================================================
@@ -424,7 +440,8 @@ class Obstacle:
     TYPES = [
         "trash",
         "brick",
-        "barrier"
+        "barrier",
+        "air"
     ]
 
     def __init__(self, x):
@@ -441,14 +458,21 @@ class Obstacle:
             self.width = 70
             self.height = 35
 
+        elif self.type == "air":
+            self.width = 100
+            self.height = 45
+            self.y = GROUND_Y - 250
+
         else:
 
             self.width = 100
             self.height = 65
 
         self.x = x
-        self.y = GROUND_Y - self.height
 
+        if self.type != "air":
+            self.y = GROUND_Y - self.height
+    
         self.rect = pygame.Rect(
             self.x,
             self.y,
@@ -478,6 +502,22 @@ class Obstacle:
                 screen,
                 (170, 70, 50),
                 self.rect
+            )
+
+        elif self.type == "air":
+
+            pygame.draw.rect(
+                screen,
+                (180, 40, 180),
+                self.rect
+            )
+
+            pygame.draw.line(
+                screen,
+                (120, 120, 120),
+                (self.rect.centerx, self.rect.bottom),
+                (self.rect.centerx, self.rect.bottom + 20),
+                4
             )
 
         else:
@@ -826,25 +866,36 @@ VICTORY_IMAGES = {
 }
 
 # ============================================================
-# TŁO
+# TŁA I ZIEMIA DLA POSTACI
 # ============================================================
 
-background_image = pygame.image.load(
-    "assets/backgrounds/background.png"
-).convert()
+LEVEL_IMAGES = {}
 
-ground_image = pygame.image.load(
-    "assets/backgrounds/ground.png"
-).convert_alpha()
+for character, paths in LEVELS.items():
+
+    background = pygame.image.load(
+        paths["background"]
+    ).convert()
+
+    ground = pygame.image.load(
+        paths["ground"]
+    ).convert_alpha()
+
+    LEVEL_IMAGES[character] = {
+        "background": background,
+        "ground": ground
+    }
+
 
 background_x = 0
 ground_x = 0
-
 
 def draw_background(speed, dt):
 
     global background_x
     global ground_x
+    global background_image
+    global ground_image
 
     # --------------------------------------------------------
     # PRĘDKOŚĆ TŁA
@@ -889,7 +940,7 @@ def draw_background(speed, dt):
     screen.blit(
         ground_image,
         (int(ground_x + WIDTH), GROUND_Y)
-    )
+    )    
 # ============================================================
 # EKRAN WYBORU POSTACI
 # ============================================================
@@ -1032,6 +1083,17 @@ def draw_health(player):
 def game():
 
     selected_character = character_selection()
+
+    global background_image
+    global ground_image
+    global background_x
+    global ground_x
+
+    background_image = LEVEL_IMAGES[selected_character]["background"]
+    ground_image = LEVEL_IMAGES[selected_character]["ground"]
+
+    background_x = 0
+    ground_x = 0
 
     play_random_music()
 
