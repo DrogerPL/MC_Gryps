@@ -35,12 +35,13 @@ def play_random_music():
 # USTAWIENIA
 # ------------------------------------------------------------
 
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 1376
+HEIGHT = 768
 
 FPS = 60
 
-GROUND_Y = 570
+#570
+GROUND_Y = 650
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("MC Gryps Runner")
@@ -98,7 +99,22 @@ CHARACTERS = {
     }
 }
 
+LEVELS = {
+    "BIG OZI": {
+        "background": "assets/levels/big_ozi/background.png",
+        "ground": "assets/levels/big_ozi/ground.png",
+    },
 
+    "LIL specjal": {
+        "background": "assets/levels/lil_specjal/background.png",
+        "ground": "assets/levels/lil_specjal/ground.png",
+    },
+
+    "Wika the psycho": {
+        "background": "assets/levels/wika_psycho/background.png",
+        "ground": "assets/levels/wika_psycho/ground.png",
+    }
+}
 # ============================================================
 # FUNKCJA TEKSTU
 # ============================================================
@@ -424,7 +440,8 @@ class Obstacle:
     TYPES = [
         "trash",
         "brick",
-        "barrier"
+        "barrier",
+        "air"
     ]
 
     def __init__(self, x):
@@ -441,14 +458,21 @@ class Obstacle:
             self.width = 70
             self.height = 35
 
+        elif self.type == "air":
+            self.width = 100
+            self.height = 45
+            self.y = GROUND_Y - 250
+
         else:
 
             self.width = 100
             self.height = 65
 
         self.x = x
-        self.y = GROUND_Y - self.height
 
+        if self.type != "air":
+            self.y = GROUND_Y - self.height
+    
         self.rect = pygame.Rect(
             self.x,
             self.y,
@@ -480,6 +504,22 @@ class Obstacle:
                 self.rect
             )
 
+        elif self.type == "air":
+
+            pygame.draw.rect(
+                screen,
+                (180, 40, 180),
+                self.rect
+            )
+
+            pygame.draw.line(
+                screen,
+                (120, 120, 120),
+                (self.rect.centerx, self.rect.bottom),
+                (self.rect.centerx, self.rect.bottom + 20),
+                4
+            )
+
         else:
 
             pygame.draw.rect(
@@ -494,25 +534,28 @@ class Obstacle:
 # ============================================================
 # ZBIERACZKA
 # ============================================================
-
 class Collectible:
-
-    TYPES = [
-        "money",
-        "energy",
-        "package"
-    ]
 
     def __init__(self, x):
 
-        self.type = random.choice(self.TYPES)
+        # GRAFIKA 100 ZŁ
+        self.image = pygame.image.load(
+            "assets/collectibles/100zl.png"
+        ).convert_alpha()
 
-        self.size = 30
+        # Rozmiar banknotu na ekranie
+        self.image = pygame.transform.scale(
+            self.image,
+            (80, 40)
+        )
+
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
         self.x = x
 
-        # czasami wyżej, żeby trzeba było skoczyć
-
+        # Czasami 100 zł będzie wyżej,
+        # żeby trzeba było skoczyć
         if random.random() < 0.35:
 
             self.y = GROUND_Y - random.randint(
@@ -527,8 +570,8 @@ class Collectible:
         self.rect = pygame.Rect(
             self.x,
             self.y,
-            self.size,
-            self.size
+            self.width,
+            self.height
         )
 
     def update(self, speed, dt):
@@ -539,79 +582,14 @@ class Collectible:
 
     def draw(self):
 
-        if self.type == "money":
-
-            pygame.draw.rect(
-                screen,
-                GREEN,
-                self.rect
-            )
-
-            draw_text(
-                "$",
-                font_small,
-                BLACK,
-                self.rect.centerx,
-                self.rect.centery,
-                center=True
-            )
-
-        elif self.type == "energy":
-
-            pygame.draw.rect(
-                screen,
-                YELLOW,
-                self.rect
-            )
-
-            pygame.draw.polygon(
-                screen,
-                BLACK,
-                [
-                    (
-                        self.rect.centerx + 4,
-                        self.rect.top + 5
-                    ),
-                    (
-                        self.rect.centerx - 4,
-                        self.rect.centery
-                    ),
-                    (
-                        self.rect.centerx + 2,
-                        self.rect.centery
-                    ),
-                    (
-                        self.rect.centerx - 5,
-                        self.rect.bottom - 5
-                    )
-                ]
-            )
-
-        else:
-
-            pygame.draw.rect(
-                screen,
-                ORANGE,
-                self.rect
-            )
-
-            pygame.draw.rect(
-                screen,
-                WHITE,
-                (
-                    self.rect.x + 5,
-                    self.rect.y + 5,
-                    20,
-                    20
-                ),
-                2
-            )
+        screen.blit(
+            self.image,
+            self.rect
+        )
 
     def off_screen(self):
 
         return self.rect.right < 0
-
-
 # ============================================================
 # POLICJA
 # ============================================================
@@ -812,6 +790,9 @@ GAME_OVER_IMAGES = {
         "assets/game_over/lil_specjal.png"
     ).convert(),
 
+    "Wika the psycho": pygame.image.load(
+            "assets/game_over/wika_psycho.png"
+        ).convert(),
 }
 
 
@@ -823,28 +804,43 @@ VICTORY_IMAGES = {
     "LIL specjal": pygame.image.load(
         "assets/victory/lil_specjal.png"
     ).convert(),
+
+    "Wika the psycho": pygame.image.load(
+            "assets/victory/wika_psycho.png"
+        ).convert(),
 }
 
 # ============================================================
-# TŁO
+# TŁA I ZIEMIA DLA POSTACI
 # ============================================================
 
-background_image = pygame.image.load(
-    "assets/backgrounds/background.png"
-).convert()
+LEVEL_IMAGES = {}
 
-ground_image = pygame.image.load(
-    "assets/backgrounds/ground.png"
-).convert_alpha()
+for character, paths in LEVELS.items():
+
+    background = pygame.image.load(
+        paths["background"]
+    ).convert()
+
+    ground = pygame.image.load(
+        paths["ground"]
+    ).convert_alpha()
+
+    LEVEL_IMAGES[character] = {
+        "background": background,
+        "ground": ground
+    }
+
 
 background_x = 0
 ground_x = 0
-
 
 def draw_background(speed, dt):
 
     global background_x
     global ground_x
+    global background_image
+    global ground_image
 
     # --------------------------------------------------------
     # PRĘDKOŚĆ TŁA
@@ -889,7 +885,7 @@ def draw_background(speed, dt):
     screen.blit(
         ground_image,
         (int(ground_x + WIDTH), GROUND_Y)
-    )
+    )    
 # ============================================================
 # EKRAN WYBORU POSTACI
 # ============================================================
@@ -1032,6 +1028,17 @@ def draw_health(player):
 def game():
 
     selected_character = character_selection()
+
+    global background_image
+    global ground_image
+    global background_x
+    global ground_x
+
+    background_image = LEVEL_IMAGES[selected_character]["background"]
+    ground_image = LEVEL_IMAGES[selected_character]["ground"]
+
+    background_x = 0
+    ground_x = 0
 
     play_random_music()
 
