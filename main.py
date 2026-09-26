@@ -534,25 +534,28 @@ class Obstacle:
 # ============================================================
 # ZBIERACZKA
 # ============================================================
-
 class Collectible:
-
-    TYPES = [
-        "money",
-        "energy",
-        "package"
-    ]
 
     def __init__(self, x):
 
-        self.type = random.choice(self.TYPES)
+        # GRAFIKA 100 ZŁ
+        self.image = pygame.image.load(
+            "assets/collectibles/100zl.png"
+        ).convert_alpha()
 
-        self.size = 30
+        # Rozmiar banknotu na ekranie
+        self.image = pygame.transform.scale(
+            self.image,
+            (80, 40)
+        )
+
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
         self.x = x
 
-        # czasami wyżej, żeby trzeba było skoczyć
-
+        # Czasami 100 zł będzie wyżej,
+        # żeby trzeba było skoczyć
         if random.random() < 0.35:
 
             self.y = GROUND_Y - random.randint(
@@ -567,8 +570,8 @@ class Collectible:
         self.rect = pygame.Rect(
             self.x,
             self.y,
-            self.size,
-            self.size
+            self.width,
+            self.height
         )
 
     def update(self, speed, dt):
@@ -579,79 +582,14 @@ class Collectible:
 
     def draw(self):
 
-        if self.type == "money":
-
-            pygame.draw.rect(
-                screen,
-                GREEN,
-                self.rect
-            )
-
-            draw_text(
-                "$",
-                font_small,
-                BLACK,
-                self.rect.centerx,
-                self.rect.centery,
-                center=True
-            )
-
-        elif self.type == "energy":
-
-            pygame.draw.rect(
-                screen,
-                YELLOW,
-                self.rect
-            )
-
-            pygame.draw.polygon(
-                screen,
-                BLACK,
-                [
-                    (
-                        self.rect.centerx + 4,
-                        self.rect.top + 5
-                    ),
-                    (
-                        self.rect.centerx - 4,
-                        self.rect.centery
-                    ),
-                    (
-                        self.rect.centerx + 2,
-                        self.rect.centery
-                    ),
-                    (
-                        self.rect.centerx - 5,
-                        self.rect.bottom - 5
-                    )
-                ]
-            )
-
-        else:
-
-            pygame.draw.rect(
-                screen,
-                ORANGE,
-                self.rect
-            )
-
-            pygame.draw.rect(
-                screen,
-                WHITE,
-                (
-                    self.rect.x + 5,
-                    self.rect.y + 5,
-                    20,
-                    20
-                ),
-                2
-            )
+        screen.blit(
+            self.image,
+            self.rect
+        )
 
     def off_screen(self):
 
         return self.rect.right < 0
-
-
 # ============================================================
 # POLICJA
 # ============================================================
@@ -852,6 +790,9 @@ GAME_OVER_IMAGES = {
         "assets/game_over/lil_specjal.png"
     ).convert(),
 
+    "Wika the psycho": pygame.image.load(
+            "assets/game_over/wika_psycho.png"
+        ).convert(),
 }
 
 
@@ -863,6 +804,10 @@ VICTORY_IMAGES = {
     "LIL specjal": pygame.image.load(
         "assets/victory/lil_specjal.png"
     ).convert(),
+
+    "Wika the psycho": pygame.image.load(
+            "assets/victory/wika_psycho.png"
+        ).convert(),
 }
 
 # ============================================================
