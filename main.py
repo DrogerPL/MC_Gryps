@@ -20,7 +20,7 @@ MUSIC_TRACKS = [
     "assets/music/Techno_Gryps.mp3",
 ]
 
-MUSIC_VOLUME = 0.12
+MUSIC_VOLUME = 0.10
 
 def play_random_music():
     if not MUSIC_TRACKS:
@@ -86,8 +86,8 @@ CHARACTERS = {
 
     "LIL specjal": {
         "color": (70, 120, 220),
-        "speed": 1.20,
-        "jump": 0.95,
+        "speed": 1.25,
+        "jump": 1.05,
         "health": 2
     },
 
@@ -164,11 +164,6 @@ class Player:
                 ),
 
                 pygame.transform.scale(
-                    pygame.image.load("assets/characters/big_ozi/run_2.png").convert_alpha(),
-                    (160, 200)
-                ),
-
-                pygame.transform.scale(
                     pygame.image.load("assets/characters/big_ozi/run_3.png").convert_alpha(),
                     (160, 200)
                 ),
@@ -183,10 +178,6 @@ class Player:
                    (160, 200)
                 ),
 
-                pygame.transform.scale(
-                    pygame.image.load("assets/characters/big_ozi/run_6.png").convert_alpha(),
-                    (160, 200)
-                ),
             ]
 
             self.jump_image = pygame.transform.scale(
@@ -444,40 +435,77 @@ class Obstacle:
         "air"
     ]
 
+    IMAGES = {
+        "trash": "assets/obstacles/trash.png",
+        "brick": "assets/obstacles/brick.png",
+        "barrier": "assets/obstacles/barrier.png",
+        "air": "assets/obstacles/air.png"
+    }
+
     def __init__(self, x):
 
         self.type = random.choice(self.TYPES)
 
+        # ==========================================
+        # ROZMIARY HITBOXÓW
+        # ==========================================
+
         if self.type == "trash":
 
-            self.width = 55
-            self.height = 75
+            self.width = 70
+            self.height = 90
 
         elif self.type == "brick":
 
-            self.width = 70
-            self.height = 35
+            self.width = 90
+            self.height = 60
+
+        elif self.type == "barrier":
+
+            self.width = 80
+            self.height = 80
 
         elif self.type == "air":
-            self.width = 100
-            self.height = 45
-            self.y = GROUND_Y - 250
 
-        else:
+            self.width = 90
+            self.height = 110
 
-            self.width = 100
-            self.height = 65
+        # ==========================================
+        # POZYCJA
+        # ==========================================
 
         self.x = x
 
-        if self.type != "air":
+        if self.type == "air":
+            # Przeszkoda wisząca w powietrzu
+            self.y = GROUND_Y - 250
+        else:
+            # Normalne przeszkody stojące na ziemi
             self.y = GROUND_Y - self.height
-    
+
+        # ==========================================
+        # HITBOX
+        # ==========================================
+
         self.rect = pygame.Rect(
             self.x,
             self.y,
             self.width,
             self.height
+        )
+
+        # ==========================================
+        # GRAFIKA
+        # ==========================================
+
+        self.image = pygame.image.load(
+            self.IMAGES[self.type]
+        ).convert_alpha()
+
+        # Skalowanie pixel artu do rozmiaru przeszkody
+        self.image = pygame.transform.scale(
+            self.image,
+            (self.width, self.height)
         )
 
     def update(self, dt, speed):
@@ -488,54 +516,20 @@ class Obstacle:
 
     def draw(self):
 
-        if self.type == "trash":
+        screen.blit(
+            self.image,
+            self.rect
+        )
 
-            pygame.draw.rect(
-                screen,
-                (100, 100, 100),
-                self.rect
-            )
-
-        elif self.type == "brick":
-
-            pygame.draw.rect(
-                screen,
-                (170, 70, 50),
-                self.rect
-            )
-
-        elif self.type == "air":
-
-            pygame.draw.rect(
-                screen,
-                (180, 40, 180),
-                self.rect
-            )
-
-            pygame.draw.line(
-                screen,
-                (120, 120, 120),
-                (self.rect.centerx, self.rect.bottom),
-                (self.rect.centerx, self.rect.bottom + 20),
-                4
-            )
-
-        else:
-
-            pygame.draw.rect(
-                screen,
-                (220, 180, 40),
-                self.rect
-            )
-    
     def off_screen(self):
 
         return self.rect.right < 0
+
+
 # ============================================================
 # ZBIERACZKA
 # ============================================================
 class Collectible:
-
     def __init__(self, x):
 
         # GRAFIKA 100 ZŁ
@@ -590,38 +584,25 @@ class Collectible:
     def off_screen(self):
 
         return self.rect.right < 0
+
 # ============================================================
 # POLICJA
 # ============================================================
+
 
 class PoliceCar:
 
     def __init__(self):
 
-        # =========================
-        # KLATKI ANIMACJI
-        # =========================
-
         CAR_WIDTH = 300
         CAR_HEIGHT = 300
 
+        # KLATKI ANIMACJI
         self.frames = [
-            pygame.image.load(
-                "assets/police/police_car_1.png"
-            ).convert_alpha(),
-
-            pygame.image.load(
-                "assets/police/police_car_2.png"
-            ).convert_alpha(),
-
-            pygame.image.load(
-                "assets/police/police_car_3.png"
-            ).convert_alpha(),
-
-            pygame.image.load(
-                "assets/police/police_car_4.png"
-            ).convert_alpha(),
-
+            pygame.image.load("assets/police/police_car_1.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_2.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_3.png").convert_alpha(),
+            pygame.image.load("assets/police/police_car_4.png").convert_alpha(),
         ]
 
         self.frames = [
@@ -632,24 +613,14 @@ class PoliceCar:
             for frame in self.frames
         ]
 
-        # =========================
-        # ANIMACJA
-        # =========================
-
         self.frame_index = 0
         self.frame_timer = 0
         self.frame_speed = 0.10
 
-        self.image = self.frames[
-            self.frame_index
-        ]
+        self.image = self.frames[0]
 
         self.width = CAR_WIDTH
         self.height = CAR_HEIGHT
-
-        # =========================
-        # POZYCJA
-        # =========================
 
         self.x = -self.width
         self.y = GROUND_Y - self.height
@@ -661,50 +632,58 @@ class PoliceCar:
             self.height
         )
 
-        # =========================
         # ULT
-        # =========================
-
         self.active = False
-
-        # Prędkość podczas używania ulta
         self.ult_speed = 500
 
-        # Cooldown
+        # COOLDOWN
         self.cooldown = 5.0
         self.cooldown_timer = 0
 
-    # ========================================================
-    # WEZWANIE ULTA
-    # ========================================================
+        # ==========================================
+        # GŁOSY JANA
+        # ==========================================
+        self.car_start_sound = pygame.mixer.Sound(
+            "assets/police/car_start.mp3"
+        )
+        self.car_start_sound.set_volume(10.0)
+        self.voicelines = [
+            pygame.mixer.Sound("assets/police/voice_1.mp3"),
+            pygame.mixer.Sound("assets/police/voice_2.mp3"),
+            pygame.mixer.Sound("assets/police/voice_3.mp3"),
+            pygame.mixer.Sound("assets/police/voice_4.mp3"),
+            pygame.mixer.Sound("assets/police/voice_6.mp3"),
+            pygame.mixer.Sound("assets/police/voice_7.mp3"),
+            pygame.mixer.Sound("assets/police/voice_8.mp3"),
+            pygame.mixer.Sound("assets/police/voice_9.mp3"),
+            pygame.mixer.Sound("assets/police/voice_10.mp3"),
+            pygame.mixer.Sound("assets/police/voice_11.mp3"),
+            pygame.mixer.Sound("assets/police/voice_13.mp3"),
+        ]
+
+        for voice in self.voicelines:
+            voice.set_volume(10.0)
 
     def activate(self):
 
-        # Nie można aktywować podczas działania
         if self.active:
             return
 
-        # Nie można aktywować podczas cooldownu
         if self.cooldown_timer > 0:
             return
 
         self.active = True
 
-        # Start poza ekranem
         self.x = -self.width
-
         self.rect.x = int(self.x)
 
-    # ========================================================
-    # UPDATE
-    # ========================================================
+        self.car_start_sound.play()
+        voice = random.choice(self.voicelines)
+        voice.play()
 
     def update(self, speed, dt):
 
-        # =========================
         # COOLDOWN
-        # =========================
-
         if self.cooldown_timer > 0:
 
             self.cooldown_timer -= dt
@@ -712,15 +691,10 @@ class PoliceCar:
             if self.cooldown_timer < 0:
                 self.cooldown_timer = 0
 
-        # Jeżeli ult nie jest aktywny,
-        # radiowóz nic nie robi
         if not self.active:
             return
 
-        # =========================
         # ANIMACJA
-        # =========================
-
         self.frame_timer += dt
 
         if self.frame_timer >= self.frame_speed:
@@ -732,22 +706,13 @@ class PoliceCar:
             if self.frame_index >= len(self.frames):
                 self.frame_index = 0
 
-            self.image = self.frames[
-                self.frame_index
-            ]
+            self.image = self.frames[self.frame_index]
 
-        # =========================
-        # RUCH ULTA
-        # =========================
-
+        # RUCH SAMOCHODU
         self.x += self.ult_speed * dt
-
         self.rect.x = int(self.x)
 
-        # =========================
-        # KONIEC ULTA
-        # =========================
-
+        # KONIEC ULT
         if self.x > WIDTH:
 
             self.active = False
@@ -755,16 +720,10 @@ class PoliceCar:
             self.cooldown_timer = self.cooldown
 
             self.x = -self.width
-
             self.rect.x = int(self.x)
-
-    # ========================================================
-    # DRAW
-    # ========================================================
 
     def draw(self):
 
-        # Nie rysujemy go, jeśli ult nie jest aktywny
         if not self.active:
             return
 
@@ -775,9 +734,6 @@ class PoliceCar:
                 int(self.y)
             )
         )
-
-
-  # ============================================================
 # EKRANY PORAŻKI I ZWYCIĘSTWA
 # ============================================================
 
@@ -1091,7 +1047,6 @@ def game():
                     player.jump()
 
                 if event.key == pygame.K_x:
-
                     police.activate()
 
                 if event.key == pygame.K_ESCAPE:
@@ -1113,7 +1068,7 @@ def game():
         if spawn_timer <= 0:
 
             obstacle = Obstacle(
-                WIDTH + 100
+                WIDTH + 50
             )
 
             obstacles.append(
@@ -1154,7 +1109,7 @@ def game():
 
         if difficulty_timer >= 5:
 
-            game_speed += 20
+            game_speed += 30
 
             difficulty_timer = 0
 
