@@ -757,7 +757,142 @@ class PoliceCar:
         )
 
 
+<<<<<<< Updated upstream
   # ============================================================
+=======
+
+# ============================================================
+# ŚWIATŁA POLICYJNEGO HELIKOPTERA
+# ============================================================
+
+class HelicopterLights:
+
+    def __init__(self):
+
+        # Czy reflektor aktualnie przelatuje
+        self.active = False
+
+        # Pozycja reflektora
+        self.x = -500
+
+        # Prędkość przelotu
+        self.speed = 400
+
+        # Czas do następnego przelotu
+        self.timer = random.uniform(8, 15)
+
+        # Miganie / pulsowanie
+        self.flash_timer = 0
+
+    def start(self):
+
+        self.active = True
+
+        # Start poza ekranem
+        self.x = -500
+
+        # Losowa prędkość
+        self.speed = random.uniform(350, 500)
+
+        # Reset migania
+        self.flash_timer = 0
+
+    def update(self, dt):
+
+        # --------------------------------------------------------
+        # OCZEKIWANIE NA KOLEJNY PRZELOT
+        # --------------------------------------------------------
+
+        if not self.active:
+
+            self.timer -= dt
+
+            if self.timer <= 0:
+                self.start()
+
+            return
+
+        # --------------------------------------------------------
+        # RUCH REFLEKTORA
+        # --------------------------------------------------------
+
+        self.x += self.speed * dt
+
+        # --------------------------------------------------------
+        # DELIKATNE PULSOWANIE ŚWIATŁA
+        # --------------------------------------------------------
+
+        self.flash_timer += dt
+
+        # --------------------------------------------------------
+        # KONIEC PRZELOTU
+        # --------------------------------------------------------
+
+        if self.x > WIDTH + 500:
+
+            self.active = False
+
+            # Losowy czas do kolejnego pojawienia
+            self.timer = random.uniform(8, 18)
+
+    def draw(self):
+
+        if not self.active:
+            return
+
+        # ========================================================
+        # CAŁY EKRAN JAKO PRZEZROCZYSTA WARSTWA
+        # ========================================================
+
+        light_surface = pygame.Surface(
+            (WIDTH, HEIGHT),
+            pygame.SRCALPHA
+        )
+
+        # ========================================================
+        # POZYCJA REFLEKTORA
+        # ========================================================
+
+        x = int(self.x)
+        # ========================================================
+        # JAŚNIEJSZA ŚRODKOWA CZĘŚĆ
+        # ========================================================
+
+        pygame.draw.polygon(
+            light_surface,
+            (255, 255, 255, 28),
+            [
+                (x - 12, 0),
+                (x + 12, 0),
+                (x + 260, HEIGHT+50),
+                (x - 260, HEIGHT+50)
+            ]
+        )
+
+        # ========================================================
+        # NAJJAŚNIEJSZY ŚRODEK
+        # ========================================================
+
+        pygame.draw.polygon(
+            light_surface,
+            (255, 255, 255, 35),
+            [
+                (x - 5, 0),
+                (x + 5, 0),
+                (x + 130, HEIGHT+50),
+                (x - 130, HEIGHT+50)
+            ]
+        )
+
+        # ========================================================
+        # RYSOWANIE NA EKRAN
+        # ========================================================
+
+        screen.blit(
+            light_surface,
+            (0,0)
+        )
+>>>>>>> Stashed changes
 # EKRANY PORAŻKI I ZWYCIĘSTWA
 # ============================================================
 
@@ -1003,6 +1138,8 @@ def game():
 
     police = PoliceCar()
 
+    helicopter = HelicopterLights()
+
     score = 0
 
     money = 0
@@ -1178,6 +1315,8 @@ def game():
             dt
         )
 
+        
+
         if police.active:
             obstacles = [
                 obstacle
@@ -1186,6 +1325,8 @@ def game():
                     obstacle.rect
                 )
             ]
+
+        helicopter.update(dt)
         # ----------------------------------------------------
         # SCORE
         # ----------------------------------------------------
@@ -1222,6 +1363,8 @@ def game():
         player.draw()
 
         draw_health(player)
+
+        helicopter.draw()
         # ----------------------------------------------------
         # HUD
         # ----------------------------------------------------
