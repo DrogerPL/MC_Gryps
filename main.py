@@ -586,6 +586,137 @@ class Collectible:
         return self.rect.right < 0
 
 # ============================================================
+# HELIKOPTER
+# ============================================================
+
+class HelicopterLights:
+
+    def __init__(self):
+
+        self.active = False
+
+        # Pozycja reflektora
+        self.x = -500
+
+        # Prędkość przelotu
+        self.speed = 400
+
+        # Czas do następnego przelotu
+        self.timer = random.uniform(8, 15)
+
+    def start(self):
+
+        self.active = True
+
+        # Start poza ekranem
+        self.x = -500
+
+        # Losowa prędkość
+        self.speed = random.uniform(350, 500)
+
+    def update(self, dt):
+
+        # --------------------------------------------------------
+        # OCZEKIWANIE NA KOLEJNY PRZELOT
+        # --------------------------------------------------------
+
+        if not self.active:
+
+            self.timer -= dt
+
+            if self.timer <= 0:
+                self.start()
+
+            return
+
+        # --------------------------------------------------------
+        # RUCH REFLEKTORA
+        # --------------------------------------------------------
+
+        self.x += self.speed * dt
+
+        # --------------------------------------------------------
+        # KONIEC PRZELOTU
+        # --------------------------------------------------------
+
+        if self.x > WIDTH + 500:
+
+            self.active = False
+
+            # Losowy czas do kolejnego pojawienia
+            self.timer = random.uniform(8, 18)
+
+    def draw(self):
+
+        if not self.active:
+            return
+
+        # ========================================================
+        # PRZEZROCZYSTA WARSTWA NA CAŁY EKRAN
+        # ========================================================
+
+        light_surface = pygame.Surface(
+            (WIDTH, HEIGHT),
+            pygame.SRCALPHA
+        )
+
+        x = int(self.x)
+
+        # ========================================================
+        # SZEROKI BIAŁY STOŻEK
+        # ========================================================
+
+        pygame.draw.polygon(
+            light_surface,
+            (255, 255, 255, 20),
+            [
+                (x - 25, 0),
+                (x + 25, 0),
+                (x + 430, HEIGHT),
+                (x - 430, HEIGHT)
+            ]
+        )
+
+        # ========================================================
+        # ŚRODKOWA WARSTWA ŚWIATŁA
+        # ========================================================
+
+        pygame.draw.polygon(
+            light_surface,
+            (255, 255, 255, 28),
+            [
+                (x - 12, 0),
+                (x + 12, 0),
+                (x + 260, HEIGHT),
+                (x - 260, HEIGHT)
+            ]
+        )
+
+        # ========================================================
+        # NAJJAŚNIEJSZY ŚRODEK
+        # ========================================================
+
+        pygame.draw.polygon(
+            light_surface,
+            (255, 255, 255, 35),
+            [
+                (x - 5, 0),
+                (x + 5, 0),
+                (x + 130, HEIGHT),
+                (x - 130, HEIGHT)
+            ]
+        )
+
+        # ========================================================
+        # RYSOWANIE NA EKRAN
+        # ========================================================
+
+        screen.blit(
+            light_surface,
+            (0, 0)
+        )
+
+# ============================================================
 # POLICJA
 # ============================================================
 
@@ -1008,6 +1139,8 @@ def game():
 
     police = PoliceCar()
 
+    helicopter = HelicopterLights()
+    
     score = 0
 
     money = 0
@@ -1190,6 +1323,9 @@ def game():
                     obstacle.rect
                 )
             ]
+
+
+        helicopter.update(dt)    
         # ----------------------------------------------------
         # SCORE
         # ----------------------------------------------------
@@ -1222,6 +1358,8 @@ def game():
             obstacle.draw()
 
         police.draw()
+
+        helicopter.draw()
 
         player.draw()
 
