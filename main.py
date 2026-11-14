@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import cv2
 
 # ============================================================
 # MC GRYPS RUNNER
@@ -983,6 +984,75 @@ def draw_background(speed, dt):
         ground_image,
         (int(ground_x + WIDTH), GROUND_Y)
     )    
+
+# --------------------------------------------------------
+# ODTWARZANIE INTRO
+
+
+
+def play_intro():
+    video = cv2.VideoCapture("assets/intro/intro.mp4")
+
+    if not video.isOpened():
+        print("Nie udało się otworzyć filmu intro!")
+        return
+
+    # Uruchomienie dźwięku intro
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+    pygame.mixer.music.load("assets/intro/intro.mp3")
+    pygame.mixer.music.play()
+
+    fps = video.get(cv2.CAP_PROP_FPS)
+    if fps <= 0:
+        fps = 30
+
+    video_clock = pygame.time.Clock()
+    playing = True
+
+    while playing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
+                video.release()
+                pygame.quit()
+                sys.exit()
+
+            # Dowolny klawisz lub kliknięcie pomija intro
+            if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
+                playing = False
+
+        if not playing:
+            break
+
+        success, frame = video.read()
+
+        if not success:
+            break
+
+        # Konwersja BGR -> RGB
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = cv2.resize(frame, (WIDTH, HEIGHT))
+
+        frame_surface = pygame.image.frombuffer(
+            frame.tobytes(),
+            (WIDTH, HEIGHT),
+            "RGB"
+        )
+
+        screen.blit(frame_surface, (0, 0))
+        pygame.display.flip()
+
+        video_clock.tick(fps)
+
+    # Zatrzymanie dźwięku po pominięciu lub zakończeniu filmu
+    pygame.mixer.music.stop()
+    video.release()
+
+
+
+
 # ============================================================
 # EKRAN WYBORU POSTACI
 # ============================================================
@@ -999,7 +1069,7 @@ def character_selection():
         dark_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         dark_overlay.fill((0, 0, 0, 100))
         screen.blit(dark_overlay, (0, 0))
-        
+
         draw_text(
             "MC GRYPS RUNNER",
             font_big,
@@ -1644,5 +1714,6 @@ def victory_screen(
 # ============================================================
 
 if __name__ == "__main__":
+        play_intro()
         while True:
             game()
