@@ -900,6 +900,16 @@ VICTORY_IMAGES = {
 # ============================================================
 # TŁA I ZIEMIA DLA POSTACI
 # ============================================================
+MENU_BACKGROUND = pygame.image.load(
+    "assets/menu/background.png"
+).convert()
+
+MENU_BACKGROUND = pygame.transform.scale(
+    MENU_BACKGROUND,
+    (WIDTH, HEIGHT)
+)
+
+
 
 LEVEL_IMAGES = {}
 
@@ -985,8 +995,11 @@ def character_selection():
 
     while True:
 
-        screen.fill(BLACK)
-
+        screen.blit(MENU_BACKGROUND, (0, 0))
+        dark_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        dark_overlay.fill((0, 0, 0, 100))
+        screen.blit(dark_overlay, (0, 0))
+        
         draw_text(
             "MC GRYPS RUNNER",
             font_big,
@@ -1345,7 +1358,7 @@ def game():
             60 * dt
         )
 
-        if score >= 2000: #18000 to optymalna wartość
+        if score >= 18000:
             pygame.mixer.music.stop()
 
             result = victory_screen(
@@ -1516,15 +1529,7 @@ def game_over(
             start_y + spacing * 2,
             center=True
         )
-
-        draw_text(
-            "ENTER - zagraj ponownie",
-            font_small,
-            WHITE,
-            left_x,
-            start_y + spacing * 3 + 20,
-            center=True
-        )
+      
 
         draw_text(
             "ESC - menu",
@@ -1609,14 +1614,6 @@ def victory_screen(
             center=True
         )
 
-        draw_text(
-            "ENTER - zagraj ponownie",
-            font_small,
-            WHITE,
-            left_x,
-            start_y + spacing * 3 + 20,
-            center=True
-        )
 
         draw_text(
             "ESC - menu",
