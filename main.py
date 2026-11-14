@@ -1,7 +1,14 @@
 import pygame
 import random
-import sys
+import sys, os
 import cv2
+
+
+# Ustawienie katalogu roboczego gry
+if getattr(sys, "frozen", False):
+    os.chdir(sys._MEIPASS)
+else:
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # ============================================================
 # MC GRYPS RUNNER
