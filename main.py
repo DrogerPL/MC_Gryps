@@ -1039,7 +1039,7 @@ def character_selection():
             )
 
         draw_text(
-            "STRZAŁKI GÓRA/DÓŁ - wybór",
+            "Strzałki & W/S - wybór",
             font_small,
             WHITE,
             WIDTH // 2,
@@ -1066,6 +1066,10 @@ def character_selection():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
                 if event.key in (pygame.K_UP, pygame.K_w):
 
@@ -1183,7 +1187,7 @@ def game():
                     police.activate()
 
                 if event.key == pygame.K_ESCAPE:
-
+                    pygame.mixer.music.stop()
                     return
 
         # ----------------------------------------------------
@@ -1257,24 +1261,31 @@ def game():
                 game_speed
             )
 
-            if player.rect.colliderect(
-                obstacle.rect
-            ):
+            if player.rect.colliderect(obstacle.rect):
 
-             if player.take_damage():
+                if player.take_damage():
 
-                return game_over(
-                    score,
-                    money,
-                    selected_character
-                )
-             else:
-                obstacles.remove(obstacle)
+                    pygame.mixer.music.stop()
 
-        obstacles = [
-            o for o in obstacles
-            if not o.off_screen()
-        ]
+                    result = game_over(
+                        score,
+                        money,
+                        selected_character
+                    )
+
+                    if result == "restart":
+                        return game()
+
+                    return
+             
+                else:
+                    obstacles.remove(obstacle)
+                    break
+
+            obstacles = [
+                o for o in obstacles
+                if not o.off_screen()
+            ]
 
         # ----------------------------------------------------
         # ZBIERAJKI
@@ -1334,12 +1345,19 @@ def game():
             60 * dt
         )
 
-        if score >= 18000:
-            return victory_screen(
+        if score >= 2000: #18000 to optymalna wartość
+            pygame.mixer.music.stop()
+
+            result = victory_screen(
               score,
               money,
               selected_character
             )
+
+            if result == "restart":
+                return  game()
+
+            return
         # ----------------------------------------------------
         # RYSOWANIE
         # ----------------------------------------------------
@@ -1529,14 +1547,10 @@ def game_over(
             if event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_RETURN:
-
-                    game()
-
-                    return
+                    return "restart"
 
                 if event.key == pygame.K_ESCAPE:
-
-                    return
+                    return "menu"
 
         clock.tick(FPS)
 
@@ -1624,15 +1638,14 @@ def victory_screen(
             if event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_RETURN:
-                    game()
-                    return
+                    return "restart"
 
                 if event.key == pygame.K_ESCAPE:
-                    return
+                    return "menu"
 # ============================================================
 # START
 # ============================================================
 
 if __name__ == "__main__":
-
-    game()
+        while True:
+            game()
