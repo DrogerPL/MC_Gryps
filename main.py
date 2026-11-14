@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import cv2
 
 # ============================================================
 # MC GRYPS RUNNER
@@ -900,6 +901,16 @@ VICTORY_IMAGES = {
 # ============================================================
 # TŁA I ZIEMIA DLA POSTACI
 # ============================================================
+MENU_BACKGROUND = pygame.image.load(
+    "assets/menu/background.png"
+).convert()
+
+MENU_BACKGROUND = pygame.transform.scale(
+    MENU_BACKGROUND,
+    (WIDTH, HEIGHT)
+)
+
+
 
 LEVEL_IMAGES = {}
 
@@ -973,6 +984,75 @@ def draw_background(speed, dt):
         ground_image,
         (int(ground_x + WIDTH), GROUND_Y)
     )    
+
+# --------------------------------------------------------
+# ODTWARZANIE INTRO
+
+
+
+def play_intro():
+    video = cv2.VideoCapture("assets/intro/intro.mp4")
+
+    if not video.isOpened():
+        print("Nie udało się otworzyć filmu intro!")
+        return
+
+    # Uruchomienie dźwięku intro
+    if not pygame.mixer.get_init():
+        pygame.mixer.init()
+
+    pygame.mixer.music.load("assets/intro/intro.mp3")
+    pygame.mixer.music.play()
+
+    fps = video.get(cv2.CAP_PROP_FPS)
+    if fps <= 0:
+        fps = 30
+
+    video_clock = pygame.time.Clock()
+    playing = True
+
+    while playing:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
+                video.release()
+                pygame.quit()
+                sys.exit()
+
+            # Dowolny klawisz lub kliknięcie pomija intro
+            if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
+                playing = False
+
+        if not playing:
+            break
+
+        success, frame = video.read()
+
+        if not success:
+            break
+
+        # Konwersja BGR -> RGB
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = cv2.resize(frame, (WIDTH, HEIGHT))
+
+        frame_surface = pygame.image.frombuffer(
+            frame.tobytes(),
+            (WIDTH, HEIGHT),
+            "RGB"
+        )
+
+        screen.blit(frame_surface, (0, 0))
+        pygame.display.flip()
+
+        video_clock.tick(fps)
+
+    # Zatrzymanie dźwięku po pominięciu lub zakończeniu filmu
+    pygame.mixer.music.stop()
+    video.release()
+
+
+
+
 # ============================================================
 # EKRAN WYBORU POSTACI
 # ============================================================
@@ -985,7 +1065,10 @@ def character_selection():
 
     while True:
 
-        screen.fill(BLACK)
+        screen.blit(MENU_BACKGROUND, (0, 0))
+        dark_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        dark_overlay.fill((0, 0, 0, 100))
+        screen.blit(dark_overlay, (0, 0))
 
         draw_text(
             "MC GRYPS RUNNER",
@@ -1039,7 +1122,7 @@ def character_selection():
             )
 
         draw_text(
-            "STRZAŁKI GÓRA/DÓŁ - wybór",
+            "Strzałki & W/S - wybór",
             font_small,
             WHITE,
             WIDTH // 2,
@@ -1066,6 +1149,10 @@ def character_selection():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
 
                 if event.key in (pygame.K_UP, pygame.K_w):
 
@@ -1183,7 +1270,7 @@ def game():
                     police.activate()
 
                 if event.key == pygame.K_ESCAPE:
-
+                    pygame.mixer.music.stop()
                     return
 
         # ----------------------------------------------------
@@ -1257,24 +1344,31 @@ def game():
                 game_speed
             )
 
-            if player.rect.colliderect(
-                obstacle.rect
-            ):
+            if player.rect.colliderect(obstacle.rect):
 
-             if player.take_damage():
+                if player.take_damage():
 
-                return game_over(
-                    score,
-                    money,
-                    selected_character
-                )
-             else:
-                obstacles.remove(obstacle)
+                    pygame.mixer.music.stop()
 
-        obstacles = [
-            o for o in obstacles
-            if not o.off_screen()
-        ]
+                    result = game_over(
+                        score,
+                        money,
+                        selected_character
+                    )
+
+                    if result == "restart":
+                        return game()
+
+                    return
+             
+                else:
+                    obstacles.remove(obstacle)
+                    break
+
+            obstacles = [
+                o for o in obstacles
+                if not o.off_screen()
+            ]
 
         # ----------------------------------------------------
         # ZBIERAJKI
@@ -1335,11 +1429,18 @@ def game():
         )
 
         if score >= 18000:
-            return victory_screen(
+            pygame.mixer.music.stop()
+
+            result = victory_screen(
               score,
               money,
               selected_character
             )
+
+            if result == "restart":
+                return  game()
+
+            return
         # ----------------------------------------------------
         # RYSOWANIE
         # ----------------------------------------------------
@@ -1498,15 +1599,7 @@ def game_over(
             start_y + spacing * 2,
             center=True
         )
-
-        draw_text(
-            "ENTER - zagraj ponownie",
-            font_small,
-            WHITE,
-            left_x,
-            start_y + spacing * 3 + 20,
-            center=True
-        )
+      
 
         draw_text(
             "ESC - menu",
@@ -1529,14 +1622,10 @@ def game_over(
             if event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_RETURN:
-
-                    game()
-
-                    return
+                    return "restart"
 
                 if event.key == pygame.K_ESCAPE:
-
-                    return
+                    return "menu"
 
         clock.tick(FPS)
 
@@ -1595,14 +1684,6 @@ def victory_screen(
             center=True
         )
 
-        draw_text(
-            "ENTER - zagraj ponownie",
-            font_small,
-            WHITE,
-            left_x,
-            start_y + spacing * 3 + 20,
-            center=True
-        )
 
         draw_text(
             "ESC - menu",
@@ -1624,15 +1705,15 @@ def victory_screen(
             if event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_RETURN:
-                    game()
-                    return
+                    return "restart"
 
                 if event.key == pygame.K_ESCAPE:
-                    return
+                    return "menu"
 # ============================================================
 # START
 # ============================================================
 
 if __name__ == "__main__":
-
-    game()
+        play_intro()
+        while True:
+            game()
